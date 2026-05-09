@@ -18,7 +18,7 @@ Golden Spa is a spa management system designed to support:
 
 ## Entity-Relationship Diagram
 
-![ER Diagram](docs/er_diagram.png)
+[![ER Diagram](docs/er_diagram.png)](https://flacosta18.github.io/Golden-Spa-DB/Golden%20Spa%20DB/docs/golden_spa_er_diagram.html)
 
 > Open `docs/er_diagram.html` in a browser for an interactive version.
 
