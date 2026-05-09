@@ -1,0 +1,122 @@
+
+<style>
+h2.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+#erd{padding:12px 0}
+#erd svg{max-width:100%}
+#erd svg .label{font-family:"Anthropic Sans",sans-serif!important}
+#erd svg .entityLabel{font-family:"Anthropic Sans",sans-serif!important;font-size:13px!important}
+#erd svg .attributeBoxEven rect,#erd svg .attributeBoxOdd rect{stroke:none!important}
+</style>
+<h2 class="sr-only">Golden Spa entity-relationship diagram showing six tables: Employees, Certificates, Departments, Clients, Appointments, and Services with their fields and foreign key relationships.</h2>
+<div id="erd"></div>
+<script type="module">
+import mermaid from 'https://esm.sh/mermaid@11/dist/mermaid.esm.min.mjs';
+const dark = matchMedia('(prefers-color-scheme: dark)').matches;
+await document.fonts.ready;
+mermaid.initialize({
+  startOnLoad: false,
+  theme: 'base',
+  fontFamily: '"Anthropic Sans", sans-serif',
+  themeVariables: {
+    darkMode: dark,
+    fontSize: '13px',
+    fontFamily: '"Anthropic Sans", sans-serif',
+    lineColor: dark ? '#9c9a92' : '#73726c',
+    textColor: dark ? '#c2c0b6' : '#3d3d3a',
+    primaryColor: dark ? '#2a2824' : '#f5f3ee',
+    primaryBorderColor: dark ? '#4a4740' : '#b0ae a6',
+    primaryTextColor: dark ? '#c2c0b6' : '#3d3d3a',
+    attributeBackgroundColorEven: dark ? '#232220' : '#faf9f6',
+    attributeBackgroundColorOdd: dark ? '#1e1d1b' : '#f0eeea',
+  },
+});
+const diagram = `erDiagram
+  Employees {
+    int employee_id PK
+    varchar employee_first_name
+    varchar employee_last_name
+    date employee_DOB
+    int employee_SSN
+    varchar employee_street1
+    varchar employee_street2
+    varchar employee_city
+    char employee_state
+    int employee_zip
+    int employee_phone
+    varchar employee_email
+    date employee_hired
+    date employee_terminated
+    varchar employee_position
+    decimal employee_salary
+    time employee_hours
+    int department_id FK
+    int certificate_id FK
+  }
+  Certificates {
+    int certificate_id PK
+    varchar certificate_type
+    date certificate_expiration
+  }
+  Departments {
+    int department_id PK
+    varchar department_type
+  }
+  Clients {
+    int client_id PK
+    varchar client_first_name
+    varchar client_last_name
+    varchar client_street1
+    varchar client_street2
+    varchar client_city
+    char client_state
+    char client_zip
+    char client_phone
+    varchar client_email
+  }
+  Appointments {
+    int appointment_id PK
+    date appointment_date
+    time appointment_time
+    int service_id FK
+    int employee_id FK
+    int client_id FK
+  }
+  Services {
+    int service_id PK
+    varchar service_type
+    decimal service_cost
+    time service_duration
+  }
+  Departments ||--o{ Employees : "employs"
+  Certificates ||--o{ Employees : "certifies"
+  Employees ||--o{ Appointments : "performs"
+  Clients ||--o{ Appointments : "books"
+  Services ||--o{ Appointments : "included in"
+`;
+const { svg } = await mermaid.render('erd-svg', diagram);
+document.getElementById('erd').innerHTML = svg;
+
+document.querySelectorAll('#erd svg .node').forEach(node => {
+  const firstPath = node.querySelector('path[d]');
+  if (!firstPath) return;
+  const d = firstPath.getAttribute('d');
+  const nums = d.match(/-?[\d.]+/g)?.map(Number);
+  if (!nums || nums.length < 8) return;
+  const xs = [nums[0], nums[2], nums[4], nums[6]];
+  const ys = [nums[1], nums[3], nums[5], nums[7]];
+  const x = Math.min(...xs), y = Math.min(...ys);
+  const w = Math.max(...xs) - x, h = Math.max(...ys) - y;
+  const rect = document.createElementNS('http://www.w3.org/2000/svg','rect');
+  rect.setAttribute('x', x); rect.setAttribute('y', y);
+  rect.setAttribute('width', w); rect.setAttribute('height', h);
+  rect.setAttribute('rx', '8');
+  for (const a of ['fill','stroke','stroke-width','class','style']) {
+    if (firstPath.hasAttribute(a)) rect.setAttribute(a, firstPath.getAttribute(a));
+  }
+  firstPath.replaceWith(rect);
+});
+
+document.querySelectorAll('#erd svg .attributeBoxOdd path, #erd svg .attributeBoxEven path').forEach(p => {
+  p.setAttribute('stroke','none');
+});
+</script>
